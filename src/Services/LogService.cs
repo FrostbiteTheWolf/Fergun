@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
-using Discord.WebSocket;
+using Discord.Rest;
 
 namespace Fergun.Services
 {
@@ -33,7 +33,7 @@ namespace Fergun.Services
             CompressYesterdayLogs();
         }
 
-        public LogService(DiscordSocketClient client, CommandService cmdService) : this()
+        public LogService(BaseDiscordClient client, CommandService cmdService) : this()
         {
             client.Log += LogAsync;
             cmdService.Log += LogAsync;

@@ -10,7 +10,7 @@ using Fergun.Utils;
 namespace Fergun.Modules
 {
     /// <inheritdoc/>
-    public abstract class FergunBase : FergunBase<SocketCommandContext>
+    public abstract class FergunBase : FergunBase<ShardedCommandContext>
     {
     }
 
@@ -18,7 +18,7 @@ namespace Fergun.Modules
     /// The command module base that Fergun uses in its modules.
     /// </summary>
     public abstract class FergunBase<T> : CommandCacheModuleBase<T>
-        where T : SocketCommandContext
+        where T : ShardedCommandContext
     {
         /// <summary>
         /// Gets or sets the interactive service.

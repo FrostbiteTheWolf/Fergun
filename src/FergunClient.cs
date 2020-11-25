@@ -42,7 +42,7 @@ namespace Fergun
         public static ConcurrentBag<CachedMessage> MessageCache { get; } = new ConcurrentBag<CachedMessage>();
         public static ReadOnlyDictionary<string, CultureInfo> Languages { get; private set; }
 
-        private DiscordSocketClient _client;
+        private DiscordShardedClient _client;
         private LogService _logService;
         private readonly CommandService _cmdService;
         private static IServiceProvider _services;
@@ -159,8 +159,9 @@ namespace Fergun
             Constants.ClientConfig.MessageCacheSize = Config.MessageCacheSize;
             await _logService.LogAsync(new LogMessage(LogSeverity.Verbose, "Bot", $"Message cache size: {Constants.ClientConfig.MessageCacheSize}"));
 
-            _client = new DiscordSocketClient(Constants.ClientConfig);
-            _client.Ready += ClientReady;
+
+            _client = new DiscordShardedClient(Constants.ClientConfig);
+            _client.ShardReady += ShardReady;
             _client.JoinedGuild += JoinedGuild;
             _client.LeftGuild += LeftGuild;
             _client.MessageUpdated += MessageUpdated;
@@ -436,7 +437,7 @@ namespace Fergun
             return result;
         }
 
-        private async Task ClientReady()
+        private async Task ShardReady(DiscordSocketClient client)
         {
             if (_firstConnect)
             {
@@ -468,7 +469,7 @@ namespace Fergun
                 Uptime = DateTimeOffset.UtcNow;
                 _firstConnect = false;
             }
-            await _logService.LogAsync(new LogMessage(LogSeverity.Info, "Bot", $"{_client.CurrentUser.Username} is online!"));
+            await _logService.LogAsync(new LogMessage(LogSeverity.Info, "Bot", $"Shard #{client.ShardId} is online!"));
         }
 
         private void OnTimerFired(object state)

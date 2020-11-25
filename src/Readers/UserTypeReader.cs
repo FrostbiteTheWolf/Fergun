@@ -100,21 +100,15 @@ namespace Fergun.Readers
             IUser user;
             if (context.Guild != null)
             {
-                user = await context.Guild.GetUserAsync(id);
-                if (user == null)
-                {
-                    user = await (context.Client as DiscordSocketClient).Rest.GetGuildUserAsync(context.Guild.Id, id).ConfigureAwait(false);
-                }
+                user = await context.Guild.GetUserAsync(id) 
+                       ?? await ((BaseSocketClient)context.Client).Rest.GetGuildUserAsync(context.Guild.Id, id).ConfigureAwait(false);
             }
             else
             {
                 user = await context.Channel.GetUserAsync(id, CacheMode.CacheOnly).ConfigureAwait(false);
             }
-            if (user == null)
-            {
-                user = await (context.Client as DiscordSocketClient).Rest.GetUserAsync(id).ConfigureAwait(false);
-            }
-            return user;
+
+            return user ?? await ((BaseSocketClient)context.Client).Rest.GetUserAsync(id).ConfigureAwait(false);
         }
 
         private static void AddResult(Dictionary<ulong, TypeReaderValue> results, T user, float score)

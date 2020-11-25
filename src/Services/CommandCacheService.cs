@@ -22,7 +22,7 @@ namespace Fergun.Services
         private readonly Func<LogMessage, Task> _logger;
         private int _count;
         private bool _disposed;
-        private readonly DiscordSocketClient _client;
+        private readonly BaseSocketClient _client;
         private readonly Func<SocketMessage, Task> _cmdHandler;
         private readonly double _maxMessageTime;
 
@@ -36,7 +36,7 @@ namespace Fergun.Services
         /// <param name="period">The interval between invocations of the cache clearing, in milliseconds.</param>
         /// <param name="maxMessageTime">The max. message longevity, in hours.</param>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if capacity is less than 1.</exception>
-        public CommandCacheService(DiscordSocketClient client, int capacity = 200, Func<SocketMessage, Task> cmdHandler = null,
+        public CommandCacheService(BaseSocketClient client, int capacity = 200, Func<SocketMessage, Task> cmdHandler = null,
             Func<LogMessage, Task> logger = null, int period = 1800000, double maxMessageTime = 2.0)
         {
             _client = client;

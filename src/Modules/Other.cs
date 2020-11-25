@@ -517,6 +517,14 @@ namespace Fergun.Modules
             {
                 totalUsers += guild.MemberCount;
             }
+
+            int totalUsersInShard = 0;
+            int shardId = Context.IsPrivate ? 0 : Context.Client.GetShardIdFor(Context.Guild);
+            foreach (var guild in Context.Client.GetShard(shardId).Guilds)
+            {
+                totalUsersInShard += guild.MemberCount;
+            }
+
             string version = $"v{Constants.Version}";
             if (FergunClient.IsDebugMode)
             {
@@ -542,12 +550,15 @@ namespace Fergun.Modules
                 .AddField("\u200b", "\u200b", true)
                 .AddField(Locate("BotVersion"), version, true)
 
-                .AddField(Locate("TotalServers"), Context.Client.Guilds.Count, true)
+                .AddField(Locate("TotalServers"), $"{Context.Client.Guilds.Count} (Shard: {Context.Client.GetShard(shardId).Guilds.Count})", true)
                 .AddField("\u200b", "\u200b", true)
-                .AddField(Locate("TotalUsers"), totalUsers, true)
+                .AddField(Locate("TotalUsers"), $"{totalUsers} (Shard: {totalUsersInShard})", true)
+
+                .AddField("Shard ID", shardId, true)
+                .AddField("\u200b", "\u200b", true)
+                .AddField(Locate("TotalShards"), Context.Client.Shards.Count, true)
 
                 .AddField("Uptime", elapsed.ToShortForm2(), true)
-
                 .AddField("\u200b", "\u200b", true)
                 .AddField(Locate("BotOwner"), owner, true);
 
