@@ -79,33 +79,19 @@ namespace Fergun.Services
                 _cts.Dispose();
                 _cts = null;
 
-                switch (_client)
-                {
-                    case DiscordSocketClient socketClient:
-                        socketClient.Connected -= ConnectedAsync;
-                        socketClient.Disconnected -= DisconnectedAsync;
-                        break;
-
-                    case DiscordShardedClient shardedClient:
-                        shardedClient.ShardConnected -= ShardConnectedAsync;
-                        shardedClient.ShardDisconnected -= ShardDisconnectedAsync;
-                        break;
-                }
-
-                _disposed = true;
-            }
+            _client.Connected -= ConnectedAsync;
+            _client.Disconnected -= DisconnectedAsync;
+            _disposed = true;
         }
 
-        public Task ConnectedAsync()
+        private Task ConnectedAsync()
         {
-            if (!_isReconnecting)
-            {
-                // Cancel all previous state checks and reset the CancelToken - client is back online
-                _ = _logger(new LogMessage(LogSeverity.Debug, _logSource, "Client reconnected, resetting cancel tokens..."));
-                _cts.Cancel();
-                _cts = new CancellationTokenSource();
-                _ = _logger(new LogMessage(LogSeverity.Debug, _logSource, "Client reconnected, cancel tokens reset."));
-            }
+            if (_isReconnecting) return Task.CompletedTask;
+            // Cancel all previous state checks and reset the CancelToken - client is back online
+            _ = _logger(new LogMessage(LogSeverity.Debug, _logSource, "Client reconnected, resetting cancel tokens..."));
+            _cts.Cancel();
+            _cts = new CancellationTokenSource();
+            _ = _logger(new LogMessage(LogSeverity.Debug, _logSource, "Client reconnected, cancel tokens reset."));
 
             return Task.CompletedTask;
         }
@@ -164,7 +150,7 @@ namespace Fergun.Services
                     FailFast();
                 }
                 else if (connect.IsCompletedSuccessfully)
-                    await _logger(new LogMessage(LogSeverity.Info, _logSource, "Client reset succesfully!"));
+                    await _logger(new LogMessage(LogSeverity.Info, _logSource, "Client reset successfully!"));
                 return;
             }
 

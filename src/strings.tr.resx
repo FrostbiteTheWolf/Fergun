@@ -289,7 +289,7 @@
     <value>URL geçerli bir resim değil.</value>
   </data>
 	<data name="imgSummary" xml:space="preserve">
-    <value>DuckDuckGo ile bir resim arar.</value>
+    <value>Google Görseller ile görselleri arar.</value>
   </data>
 	<data name="imgParam1" xml:space="preserve">
     <value>Aranacak anahtar kelimeler.</value>
@@ -869,9 +869,6 @@
 	<data name="uptimeSummary" xml:space="preserve">
     <value>Botun çalışma süresini gösterir.</value>
   </data>
-	<data name="waveSummary" xml:space="preserve">
-    <value>hmm</value>
-  </data>
 	<data name="languageSummary" xml:space="preserve">
     <value>Bot dilini ayarlar.</value>
   </data>
@@ -907,7 +904,7 @@
     <value>Bağlan</value>
   </data>
 	<data name="Speak" xml:space="preserve">
-    <value>Speak</value>
+    <value>Konuş</value>
   </data>
 	<data name="evalSummary" xml:space="preserve">
     <value>Kodu değerlendirir.</value>
@@ -973,7 +970,7 @@ Bir mod seçin:</value>
 modu ile: ** {0} **
 ve karakteri: ** {1} ** ...</value>
   </data>
-	<data name="CustomChararacterCreation" xml:space="preserve">
+	<data name="CustomCharacterCreation" xml:space="preserve">
     <value>Özel karakter oluşturma</value>
   </data>
 	<data name="CustomCharacterPrompt" xml:space="preserve">
@@ -1895,6 +1892,9 @@ Hikaye: Bu giriş yapay zekanın girişinizin önüne "Siz" koymasını engeller
 	<data name="alterSummary" xml:space="preserve">
     <value>Geçen tepkisini düzenler.</value>
   </data>
+	<data name="alterParam1" xml:space="preserve">
+    <value>macera kimliği.</value>
+  </data>
 	<data name="retrySummary" xml:space="preserve">
     <value>Son eylemi yeniden dener ve yeni bir yanıt oluşturur.</value>
   </data>
@@ -2328,5 +2328,14 @@ Lütfen daha sonra tekrar deneyiniz.</value>
 - Şimdi bir sayfalayıcı ile bir komut mesajını düzenlerken, reaksiyonlar kaldırılamazsa, yanıt mesajı silinecektir.
 - Artık dosyaları ekleyen bir komuta yönelik bir komut mesajını düzenlerken, "Yükleniyor" mesajı doğru şekilde silinecek.
 - Çok sayıda küçük hata düzeltmesi.</value>
+	</data>
+	<data name="Badges" xml:space="preserve">
+		<value>Rozet</value>
+	</data>
+	<data name="img2Summary" xml:space="preserve">
+		<value>DuckDuckGo ile görüntüleri arar.</value>
+	</data>
+	<data name="img2Param1" xml:space="preserve">
+		<value>Aranacak anahtar kelimeler.</value>
 	</data>
 </root>

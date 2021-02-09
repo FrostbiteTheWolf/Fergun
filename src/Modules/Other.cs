@@ -22,12 +22,12 @@ using Fergun.Utils;
 namespace Fergun.Modules
 {
     [Order(5)]
-    [RequireBotPermission(Constants.MinimunRequiredPermissions)]
+    [RequireBotPermission(Constants.MinimumRequiredPermissions)]
     [Ratelimit(Constants.GlobalCommandUsesPerPeriod, Constants.GlobalRatelimitPeriod, Measure.Minutes)]
     public class Other : FergunBase
     {
-        private static readonly string[] triviaCategories = Enum.GetNames(typeof(QuestionCategory)).Select(x => x.ToLowerInvariant()).Skip(1).ToArray();
-        private static readonly string[] triviaDifficulties = Enum.GetNames(typeof(QuestionDifficulty)).Select(x => x.ToLowerInvariant()).ToArray();
+        private static readonly string[] _triviaCategories = Enum.GetNames(typeof(QuestionCategory)).Select(x => x.ToLowerInvariant()).Skip(1).ToArray();
+        private static readonly string[] _triviaDifficulties = Enum.GetNames(typeof(QuestionDifficulty)).Select(x => x.ToLowerInvariant()).ToArray();
         private static readonly HttpClient _httpClient = new HttpClient { Timeout = Constants.HttpClientTimeout };
         private static CommandService _cmdService;
         private static LogService _logService;
@@ -151,14 +151,15 @@ namespace Fergun.Modules
             }
             string creationDate = Context.Client.CurrentUser.CreatedAt.ToString("dd'/'MM'/'yyyy", CultureInfo.InvariantCulture);
 
-            var pager = new PaginatedMessage()
+            var pager = new PaginatedMessage
             {
                 Title = string.Format(Locate("CommandStatsInfo"), creationDate),
                 Pages = pages,
                 Color = new Color(FergunClient.Config.EmbedColor),
-                Options = new PaginatorAppearanceOptions()
+                Options = new PaginatorAppearanceOptions
                 {
-                    FooterFormat = Locate("PaginatorFooter")
+                    FooterFormat = Locate("PaginatorFooter"),
+                    Timeout = TimeSpan.FromMinutes(10)
                 }
             };
 
@@ -194,17 +195,18 @@ namespace Fergun.Modules
                 return FergunResult.FromError(string.Format(Locate("CommandNotFound"), GetPrefix()));
             }
 
+            string complete = command.Module.Group == null ? command.Name : $"{command.Module.Group} {command.Name}";
             var guild = GetGuildConfig() ?? new GuildConfig(Context.Guild.Id);
-            if (guild.DisabledCommands.Contains(command.Name))
+            if (guild.DisabledCommands.Contains(complete))
             {
-                return FergunResult.FromError(string.Format(Locate("AlreadyDisabled"), Format.Code(command.Name)));
+                return FergunResult.FromError(string.Format(Locate("AlreadyDisabled"), Format.Code(complete)));
             }
 
-            guild.DisabledCommands.Add(command.Name);
+            guild.DisabledCommands.Add(complete);
             FergunClient.Database.InsertOrUpdateDocument(Constants.GuildConfigCollection, guild);
-            await _logService.LogAsync(new LogMessage(LogSeverity.Verbose, "Command", $"Disable: Disabled command \"{command.Name}\" in server {Context.Guild.Id}."));
+            await _logService.LogAsync(new LogMessage(LogSeverity.Verbose, "Command", $"Disable: Disabled command \"{complete}\" in server {Context.Guild.Id}."));
 
-            await SendEmbedAsync("\u2705 " + string.Format(Locate("CommandDisabled"), Format.Code(command.Name)));
+            await SendEmbedAsync("\u2705 " + string.Format(Locate("CommandDisabled"), Format.Code(complete)));
 
             return FergunResult.FromSuccess();
         }
@@ -230,18 +232,19 @@ namespace Fergun.Modules
                 return FergunResult.FromError(string.Format(Locate("CommandNotFound"), GetPrefix()));
             }
 
+            string complete = command.Module.Group == null ? command.Name : $"{command.Module.Group} {command.Name}";
             var guild = GetGuildConfig() ?? new GuildConfig(Context.Guild.Id);
-            if (guild.DisabledCommands.Contains(command.Name))
+            if (guild.DisabledCommands.Contains(complete))
             {
-                guild.DisabledCommands.Remove(command.Name);
+                guild.DisabledCommands.Remove(complete);
                 FergunClient.Database.InsertOrUpdateDocument(Constants.GuildConfigCollection, guild);
-                await _logService.LogAsync(new LogMessage(LogSeverity.Verbose, "Command", $"Enable: Enabled command \"{command.Name}\" in server {Context.Guild.Id}."));
+                await _logService.LogAsync(new LogMessage(LogSeverity.Verbose, "Command", $"Enable: Enabled command \"{complete}\" in server {Context.Guild.Id}."));
 
-                await SendEmbedAsync("\u2705 " + string.Format(Locate("CommandEnabled"), Format.Code(command.Name)));
+                await SendEmbedAsync("\u2705 " + string.Format(Locate("CommandEnabled"), Format.Code(complete)));
             }
             else
             {
-                return FergunResult.FromError(string.Format(Locate("AlreadyEnabled"), Format.Code(command.Name)));
+                return FergunResult.FromError(string.Format(Locate("AlreadyEnabled"), Format.Code(complete)));
             }
 
             return FergunResult.FromSuccess();
@@ -249,10 +252,10 @@ namespace Fergun.Modules
 
         [Command("inspirobot")]
         [Summary("inspirobotSummary")]
-        public async Task Inspirobot()
+        public async Task InspiroBot()
         {
             string img;
-            using (WebClient wc = new WebClient())
+            using (var wc = new WebClient())
             {
                 img = await wc.DownloadStringTaskAsync("https://inspirobot.me/api?generate=true");
             }
@@ -312,7 +315,7 @@ namespace Fergun.Modules
                 .WithColor(FergunClient.Config.EmbedColor);
 
             ReactionCallbackData data = new ReactionCallbackData(null, builder.Build(), false, false, TimeSpan.FromMinutes(1),
-                async (context) => await HandleLanguageUpdateAsync(null)).AddCallbacks(callbacks);
+                async context => await HandleLanguageUpdateAsync(null)).AddCallbacks(callbacks);
 
             message = await InlineReactionReplyAsync(data);
 
@@ -360,14 +363,7 @@ namespace Fergun.Modules
 
             // null prefix = use the global prefix
             var guild = GetGuildConfig() ?? new GuildConfig(Context.Guild.Id);
-            if (newPrefix == DatabaseConfig.GlobalPrefix)
-            {
-                guild.Prefix = null;
-            }
-            else
-            {
-                guild.Prefix = newPrefix;
-            }
+            guild.Prefix = newPrefix == DatabaseConfig.GlobalPrefix ? null : newPrefix;
 
             FergunClient.Database.InsertOrUpdateDocument(Constants.GuildConfigCollection, guild);
             GuildUtils.PrefixCache[Context.Guild.Id] = newPrefix;
@@ -453,14 +449,14 @@ namespace Fergun.Modules
                 if (File.Exists("/proc/cpuinfo"))
                 {
                     var cpuinfo = File.ReadAllLines("/proc/cpuinfo");
-                    cpu = cpuinfo.ElementAtOrDefault(4)?.Split(':')?.ElementAtOrDefault(1);
+                    cpu = cpuinfo.ElementAtOrDefault(4)?.Split(':').ElementAtOrDefault(1);
                 }
 
                 // OS Name
                 if (File.Exists("/etc/lsb-release"))
                 {
                     var distroInfo = File.ReadAllLines("/etc/lsb-release");
-                    os = distroInfo.ElementAtOrDefault(3)?.Split('=')?.ElementAtOrDefault(1)?.Trim('\"');
+                    os = distroInfo.ElementAtOrDefault(3)?.Split('=').ElementAtOrDefault(1)?.Trim('\"');
                 }
 
                 // Total RAM & total RAM usage
@@ -479,13 +475,14 @@ namespace Fergun.Modules
                 cpu = "wmic cpu get name"
                     .RunCommand()
                     ?.Trim()
-                    ?.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries)?.ElementAtOrDefault(1);
+                    .Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries)
+                    .ElementAtOrDefault(1);
 
                 // Total RAM & total RAM usage
                 var output = "wmic OS get FreePhysicalMemory,TotalVisibleMemorySize /Value"
                     .RunCommand()
                     ?.Trim()
-                    ?.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
+                    .Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
 
                 if (output?.Length > 1)
                 {
@@ -542,9 +539,9 @@ namespace Fergun.Modules
                 .AddField(Locate("CPUUsage"), cpuUsage + "%", true)
                 .AddField("\u200b", "\u200b", true)
                 .AddField(Locate("RAMUsage"),
-                $"{processRamUsage}MB ({(totalRam == null ? 0 : Math.Round((double)processRamUsage / totalRam.Value * 100, 2))}%) " +
-                $"/ {(totalRamUsage == null || totalRam == null ? "?MB" : $"{totalRamUsage}MB ({Math.Round((double)totalRamUsage.Value / totalRam.Value * 100, 2)}%)")} " +
-                $"/ {totalRam?.ToString() ?? "?"}MB", true)
+                    $"{processRamUsage}MB ({(totalRam == null ? 0 : Math.Round((double)processRamUsage / totalRam.Value * 100, 2))}%) " +
+                    $"/ {(totalRamUsage == null || totalRam == null ? "?MB" : $"{totalRamUsage}MB ({Math.Round((double)totalRamUsage.Value / totalRam.Value * 100, 2)}%)")} " +
+                    $"/ {totalRam?.ToString() ?? "?"}MB", true)
 
                 .AddField(Locate("Library"), $"Discord.Net\nv{DiscordConfig.Version}", true)
                 .AddField("\u200b", "\u200b", true)
@@ -579,11 +576,11 @@ namespace Fergun.Modules
             var owner = (await Context.Client.GetApplicationInfoAsync()).Owner;
             if (string.IsNullOrEmpty(FergunClient.Config.SupportServer))
             {
-                await SendEmbedAsync(string.Format(Locate("ContactInfoNoServer"), owner.ToString()));
+                await SendEmbedAsync(string.Format(Locate("ContactInfoNoServer"), owner));
             }
             else
             {
-                await SendEmbedAsync(string.Format(Locate("ContactInfo"), FergunClient.Config.SupportServer, owner.ToString()));
+                await SendEmbedAsync(string.Format(Locate("ContactInfo"), FergunClient.Config.SupportServer, owner));
             }
         }
 
@@ -631,7 +628,7 @@ namespace Fergun.Modules
             if (category == "categories")
             {
                 builder.WithTitle(Locate("CategoryList"))
-                    .WithDescription(string.Join("\n", triviaCategories))
+                    .WithDescription(string.Join("\n", _triviaCategories))
                     .WithColor(FergunClient.Config.EmbedColor);
 
                 await ReplyAsync(embed: builder.Build());
@@ -644,16 +641,16 @@ namespace Fergun.Modules
                 {
                     return FergunResult.FromError(Locate("BotOwnerOnly"));
                 }
-                var users = FergunClient.Database.GetAllDocuments<UserConfig>(Constants.UserConfigCollecion);
+                var users = FergunClient.Database.GetAllDocuments<UserConfig>(Constants.UserConfigCollection);
                 foreach (var user in users)
                 {
                     user.TriviaPoints = 0;
-                    FergunClient.Database.InsertOrUpdateDocument(Constants.UserConfigCollecion, user);
+                    FergunClient.Database.InsertOrUpdateDocument(Constants.UserConfigCollection, user);
                 }
                 return FergunResult.FromSuccess();
             }
 
-            UserConfig userConfig = FergunClient.Database.FindDocument<UserConfig>(Constants.UserConfigCollecion, x => x.Id == Context.User.Id)
+            UserConfig userConfig = FergunClient.Database.FindDocument<UserConfig>(Constants.UserConfigCollection, x => x.Id == Context.User.Id)
                 ?? new UserConfig(Context.User.Id);
 
             if (category == "leaderboard" || category == "ranks")
@@ -665,16 +662,15 @@ namespace Fergun.Modules
                 string userList = "";
                 string pointsList = "";
                 int totalUsers = 0;
-                var users = FergunClient.Database.GetAllDocuments<UserConfig>(Constants.UserConfigCollecion).OrderByDescending(x => x.TriviaPoints);
+                var users = FergunClient.Database.GetAllDocuments<UserConfig>(Constants.UserConfigCollection).OrderByDescending(x => x.TriviaPoints);
                 foreach (var user in users.Take(15))
                 {
                     var guildUser = await Context.Client.Rest.GetGuildUserAsync(Context.Guild.Id, user.Id);
-                    if (guildUser != null)
-                    {
-                        totalUsers++;
-                        userList += $"{guildUser}\n";
-                        pointsList += $"{user.TriviaPoints}\n";
-                    }
+                    if (guildUser == null) continue;
+
+                    totalUsers++;
+                    userList += $"{guildUser}\n";
+                    pointsList += $"{user.TriviaPoints}\n";
                 }
 
                 builder.WithTitle(Locate("TriviaLeaderboard"))
@@ -689,7 +685,7 @@ namespace Fergun.Modules
             int index = 0;
             if (category != null)
             {
-                index = Array.FindIndex(triviaCategories, x => x == category);
+                index = Array.FindIndex(_triviaCategories, x => x == category);
                 if (index <= -1)
                 {
                     index = 0;
@@ -722,20 +718,20 @@ namespace Fergun.Modules
                 i++;
             }
 
-            int time = (Array.IndexOf(triviaDifficulties, question.Difficulty) * 5) + (question.Type == "multiple" ? 10 : 5);
+            int time = (Array.IndexOf(_triviaDifficulties, question.Difficulty) * 5) + (question.Type == "multiple" ? 10 : 5);
 
             builder.WithAuthor(Context.User)
-               .WithTitle("Trivia")
-               .AddField(Locate("Category"), Uri.UnescapeDataString(question.Category), true)
-               .AddField(Locate("Type"), Uri.UnescapeDataString(question.Type), true)
-               .AddField(Locate("Difficulty"), Uri.UnescapeDataString(question.Difficulty), true)
-               .AddField(Locate("Question"), Uri.UnescapeDataString(question.Question))
-               .AddField(Locate("Options"), optionsText)
-               .WithFooter(string.Format(Locate("TimeLeft"), time))
-               .WithColor(FergunClient.Config.EmbedColor);
+                .WithTitle("Trivia")
+                .AddField(Locate("Category"), Uri.UnescapeDataString(question.Category), true)
+                .AddField(Locate("Type"), Uri.UnescapeDataString(question.Type), true)
+                .AddField(Locate("Difficulty"), Uri.UnescapeDataString(question.Difficulty), true)
+                .AddField(Locate("Question"), Uri.UnescapeDataString(question.Question))
+                .AddField(Locate("Options"), optionsText)
+                .WithFooter(string.Format(Locate("TimeLeft"), time))
+                .WithColor(FergunClient.Config.EmbedColor);
 
             ReactionCallbackData data = new ReactionCallbackData(null, builder.Build(), true, true, TimeSpan.FromSeconds(time),
-                async (context) => await HandleTriviaReactionAsync(null)).AddCallbacks(callbacks);
+                async context => await HandleTriviaReactionAsync(null)).AddCallbacks(callbacks);
 
             message = await InlineReactionReplyAsync(data);
 
@@ -769,7 +765,7 @@ namespace Fergun.Modules
                 builder.WithFooter($"{Locate("Points")}: {userConfig.TriviaPoints}")
                     .WithColor(FergunClient.Config.EmbedColor);
 
-                FergunClient.Database.InsertOrUpdateDocument(Constants.UserConfigCollecion, userConfig);
+                FergunClient.Database.InsertOrUpdateDocument(Constants.UserConfigCollection, userConfig);
                 await message.ModifyAsync(x => x.Embed = builder.Build());
             }
         }
@@ -796,7 +792,7 @@ namespace Fergun.Modules
         {
             if (FergunClient.IsDebugMode)
             {
-                //return FergunResult.FromError("No");
+                return FergunResult.FromError("No");
             }
             if (FergunClient.DblBotPage == null)
             {

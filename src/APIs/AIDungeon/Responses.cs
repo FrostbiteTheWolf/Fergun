@@ -274,7 +274,7 @@ namespace Fergun.APIs.AIDungeon
         public string Message { get; set; }
 
         [JsonProperty("time")]
-        public long Time { get; set; }
+        public int Time { get; set; }
     }
 
     public class History

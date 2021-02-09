@@ -316,7 +316,7 @@
     <value>URL не является допустимым изображением.</value>
   </data>
 	<data name="imgSummary" xml:space="preserve">
-    <value>Ищет изображение с DuckDuckGo.</value>
+    <value>Ищет изображения с помощью Google Images.</value>
   </data>
 	<data name="UrbanFooter" xml:space="preserve">
     <value>Городской словарь - Страница {0} из {1}</value>
@@ -872,9 +872,6 @@
 	<data name="uptimeSummary" xml:space="preserve">
     <value>Показывает время работы бота.</value>
   </data>
-	<data name="waveSummary" xml:space="preserve">
-    <value>хмм</value>
-  </data>
 	<data name="languageSummary" xml:space="preserve">
     <value>Устанавливает язык бота.</value>
   </data>
@@ -907,7 +904,7 @@
     <value>Управление сообщениями</value>
   </data>
 	<data name="Connect" xml:space="preserve">
-    <value>Connect</value>
+    <value>Подключить</value>
   </data>
 	<data name="Speak" xml:space="preserve">
     <value>Разговаривать</value>
@@ -976,7 +973,7 @@
 в режиме: ** {0} **
 и персонаж: ** {1} ** ...</value>
   </data>
-	<data name="CustomChararacterCreation" xml:space="preserve">
+	<data name="CustomCharacterCreation" xml:space="preserve">
     <value>Создание собственного персонажа</value>
   </data>
 	<data name="CustomCharacterPrompt" xml:space="preserve">
@@ -1043,7 +1040,7 @@
     <value>Об AI Dungeon</value>
   </data>
 	<data name="AIDHelp" xml:space="preserve">
-    <value>AI Dungeon Help</value>
+    <value>Справка AI Dungeon</value>
   </data>
 	<data name="AIDHowToPlayTitle" xml:space="preserve">
     <value>Как играть</value>
@@ -1452,10 +1449,10 @@ AI Dungeon: `info`,` new`, `continue`,` revert`, `Remember`,` alter`, `makepubli
     <value>особенности</value>
   </data>
 	<data name="BoostTier" xml:space="preserve">
-    <value>Nitro Boost Tier</value>
+    <value>Уровень Nitro Boost</value>
   </data>
 	<data name="BoostCount" xml:space="preserve">
-    <value>Nitro Boost Count</value>
+    <value>Счетчик нитроускорения</value>
   </data>
 	<data name="SeekTimeHigherOrEqual" xml:space="preserve">
     <value>Время перехода ({0}) не может быть больше или равно длине трека ({1})</value>
@@ -1895,6 +1892,9 @@ AI Dungeon: `info`,` new`, `continue`,` revert`, `Remember`,` alter`, `makepubli
 	<data name="alterSummary" xml:space="preserve">
     <value>Редактирует последний ответ.</value>
   </data>
+	<data name="alterParam1" xml:space="preserve">
+    <value>Приключение ID.</value>
+  </data>
 	<data name="retrySummary" xml:space="preserve">
     <value>Повторит последнее действие и порождает новый ответ.</value>
   </data>
@@ -2015,10 +2015,10 @@ AI Dungeon: `info`,` new`, `continue`,` revert`, `Remember`,` alter`, `makepubli
     <value>речевой канал</value>
   </data>
 	<data name="DMChannel" xml:space="preserve">
-    <value>DM Channel</value>
+    <value>Канал DM</value>
   </data>
 	<data name="Bitrate" xml:space="preserve">
-    <value>Bitrate</value>
+    <value>Битрейт</value>
   </data>
 	<data name="UserLimit" xml:space="preserve">
     <value>Лимит пользователя</value>
@@ -2136,7 +2136,7 @@ AI Dungeon: `info`,` new`, `continue`,` revert`, `Remember`,` alter`, `makepubli
 - Улучшен скребок текстов песен.
 
 - Теперь Фергун выйдет из голосового канала, если на нем только боты.
-- Теперь {0} покажет '?' и '~x' общее количество пользователей, когда кеш гильдии не заполнен.
+- Теперь `roleinfo` покажет '?' и '~x' общее количество пользователей, когда кеш гильдии не заполнен.
 
 - Исправлены действия и активные клиенты, не отображаемые в `userinfo`.
 - Исправлена ​​ошибка в `lyrics`, из-за которой параметр "-headers" игнорировался, когда передавался только он.
@@ -2328,5 +2328,14 @@ AI Dungeon: `info`,` new`, `continue`,` revert`, `Remember`,` alter`, `makepubli
 - Теперь при редактировании командного сообщения с помощью пагинатора ответное сообщение будет удаляться, если нельзя удалить реакции.
 - Теперь при редактировании командного сообщения к команде, которая прикрепляет файлы, сообщение «Загрузка» будет правильно удаляться.
 - Множество мелких исправлений ошибок.</value>
+	</data>
+	<data name="Badges" xml:space="preserve">
+		<value>Значки</value>
+	</data>
+	<data name="img2Summary" xml:space="preserve">
+		<value>Ищет изображения с DuckDuckGo.</value>
+	</data>
+	<data name="img2Param1" xml:space="preserve">
+		<value>Ключевое слово (а) для поиска.</value>
 	</data>
 </root>
