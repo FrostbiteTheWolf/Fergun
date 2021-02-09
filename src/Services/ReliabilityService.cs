@@ -74,13 +74,24 @@ namespace Fergun.Services
             {
                 throw new ObjectDisposedException(nameof(ReliabilityService), "Service has been disposed.");
             }
-            else if (disposing)
-            {
-                _cts.Dispose();
-                _cts = null;
 
-            _client.Connected -= ConnectedAsync;
-            _client.Disconnected -= DisconnectedAsync;
+            if (!disposing) return;
+            _cts.Dispose();
+            _cts = null;
+
+            switch (_client)
+            {
+                case DiscordSocketClient socketClient:
+                    socketClient.Connected -= ConnectedAsync;
+                    socketClient.Disconnected -= DisconnectedAsync;
+                    break;
+
+                case DiscordShardedClient shardedClient:
+                    shardedClient.ShardConnected -= ShardConnectedAsync;
+                    shardedClient.ShardDisconnected -= ShardDisconnectedAsync;
+                    break;
+            }
+
             _disposed = true;
         }
 
