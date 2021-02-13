@@ -157,7 +157,7 @@ namespace Fergun
             Constants.ClientConfig.MessageCacheSize = Config.MessageCacheSize;
             await _logService.LogAsync(new LogMessage(LogSeverity.Verbose, "Bot", $"Message cache size: {Constants.ClientConfig.MessageCacheSize}"));
 
-
+            Constants.ClientConfig.TotalShards = Config.TotalShards;
             _client = new DiscordShardedClient(Constants.ClientConfig);
             _client.ShardReady += ShardReady;
             _client.JoinedGuild += JoinedGuild;
