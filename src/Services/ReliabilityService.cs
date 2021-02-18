@@ -133,7 +133,7 @@ namespace Fergun.Services
 
         private Task ShardDisconnectedAsync(Exception exception, DiscordSocketClient client)
         {
-            return ((DiscordShardedClient) _client).Shards.Any(x => x.ConnectionState == ConnectionState.Connected)
+            return ((DiscordShardedClient) _client).Shards.All(x => x.ConnectionState == ConnectionState.Disconnected)
                 ? DisconnectedAsync(exception)
                 : Task.CompletedTask;
         }

@@ -422,19 +422,4 @@ namespace Fergun.Modules
             return FergunResult.FromError("Wait. This line was not supposed to be reached.");
         }
     }
-
-    public sealed class EvaluationEnvironment
-    {
-        public ICommandContext Context { get; }
-        public IUserMessage Message => Context.Message;
-        public IMessageChannel Channel => Context.Channel;
-        public IGuild Guild => Context.Guild;
-        public IUser User => Context.User;
-        public IDiscordClient Client => Context.Client;
-
-        public EvaluationEnvironment(ICommandContext context)
-        {
-            Context = context;
-        }
-    }
 }

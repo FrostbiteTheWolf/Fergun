@@ -133,9 +133,7 @@ namespace Fergun.Services
                 else
                 {
                     // Create a WebSocket-based command context based on the message
-                    ICommandContext context = _client is DiscordSocketClient client
-                        ? new SocketCommandContext(client, message)
-                        : new ShardedCommandContext((DiscordShardedClient) _client, message);
+                    var context = new ShardedCommandContext((DiscordShardedClient)_client, message);
 
                     // Execute the command with the command context we just
                     // created, along with the service provider for precondition checks.

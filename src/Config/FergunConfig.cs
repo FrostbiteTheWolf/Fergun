@@ -125,6 +125,12 @@ namespace Fergun
         public bool UseReliabilityService { get; private set; }
 
         /// <summary>
+        /// Gets the total number of shards to use.
+        /// </summary>
+        [JsonProperty]
+        public int? TotalShards { get; private set; }
+
+        /// <summary>
         /// Gets the MongoDB server authentication info.
         /// </summary>
         [JsonProperty]
@@ -135,12 +141,6 @@ namespace Fergun
         /// </summary>
         [JsonProperty]
         public LavaConfig LavaConfig { get; private set; } = new LavaConfig();
-
-        /// <summary>
-        /// Gets the total number of shards to use.
-        /// </summary>
-        [JsonProperty]
-        public int? TotalShards { get; private set; }
 
         /// <summary>
         /// Gets the loading emote.
